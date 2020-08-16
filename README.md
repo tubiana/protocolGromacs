@@ -1,5 +1,5 @@
 # Automatic Gromacs Workflow Script
-*Author: Thibault Tubiana, PhD*
+*Author: Thibault Tubiana, PhD*  
 **Please read before using this script.**
 
 ## Description
