@@ -1,0 +1,16 @@
+; Neighbor searching
+cutoff-scheme           = Verlet
+rlist                   = 1.1
+pbc                     = xyz
+verlet-buffer-tolerance = -1
+
+; Electrostatics
+coulombtype    = PME
+pme-order      = 4
+fourierspacing = 0.10
+rcoulomb       = 1.0
+ 
+; VdW
+rvdw           = 1.0
+ 
+continuation   = yes

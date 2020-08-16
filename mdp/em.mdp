@@ -1,0 +1,39 @@
+;  Preprocessing
+define                  = -DFLEXIBLE    ; defines to pass to the preprocessor
+
+;  Run Control
+integrator              = cg         ; Conjugate Gradient energy minimization
+nstcgsteep              = 50         ; every 50 step, do a steepest descent
+nsteps                  = 1000          ; maximum number of steps to integrate
+
+;  Energy Minimization
+emtol                   = 1000          ; [kJ/mol/nm] minimization is converged when max force is < emtol
+emstep                  = 0.01          ; [nm] initial step-size
+cutoff-scheme           = verlet
+;  Output Control
+nstxout                 = 100           ; [steps] freq to write coordinates to trajectory
+nstvout                 = 100           ; [steps] freq to write velocities to trajectory
+nstfout                 = 100           ; [steps] freq to write forces to trajectory
+nstlog                  = 1             ; [steps] freq to write energies to log file
+nstenergy               = 1             ; [steps] freq to write energies to energy file
+energygrps              = System        ; group(s) to write to energy file
+
+;  Neighbor Searching
+nstlist                 = 100          ; [steps] freq to update neighbor list
+ns_type                 = grid          ; method of updating neighbor list
+pbc                     = xyz           ; periodic boundary conditions in all directions
+rlist                   = 1.0           ; [nm] cut-off distance for the short-range neighbor list
+
+;  Electrostatics
+coulombtype             = PME           ; Particle-Mesh Ewald electrostatics
+rcoulomb                = 1.0           ; [nm] distance for Coulomb cut-off
+
+;  VdW
+vdwtype                 = cut-off       ; twin-range cut-off with rlist where rvdw >= rlist
+rvdw                    = 1.0           ; [nm] distance for LJ cut-off
+DispCorr                = Ener          ; apply long range dispersion corrections for energy
+
+;  Ewald
+fourierspacing          = 0.12          ; [nm] grid spacing for FFT grid when using PME
+pme_order               = 4             ; interpolation order for PME, 4 = cubic
+ewald_rtol              = 1e-5          ; relative strength of Ewald-shifted potential at rcoulomb
