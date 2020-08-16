@@ -1,27 +1,27 @@
 # Automatic Gromacs Workflow Script
-*Author: Thibault Tubiana, Ph.D.*
+*Author: Thibault Tubiana, PhD*
 **Please read before using this script.**
 
 ## Description
-This script is made to facilitate the preparation and production of protein and protein/ligand MD.  
-It follows the procedure described for a teaching I made at the University of Bergen. You can find lectures content on this page http://tubiana.me/teaching/kjem220-molecular-modelling/ or the pdf describing all the steps on this script here: http://tubiana.me/teaching_files/biocat2020/Tutorial_Gromacs-2019.pdf 
-Basic analysis are also generated with gromacs tools (temperature/pressure/rmsd/rmsf......) and the production trajectories are also cleaned with trjconv (imaging/protein centered/water stripped), but all the original trajectories are kept.  
-Feel free to make other analysis of course, like trajectory clustering with ttclust https://github.com/tubiana/TTClust 😇
+This script is made to facilitate the preparation and production of protein and protein/ligand, MD.  
+It follows the procedure described for teaching I made at the University of Bergen. You can find lectures content on this page http://tubiana.me/teaching/kjem220-molecular-modelling/ or the pdf describing all the steps on this script here: http://tubiana.me/teaching_files/biocat2020/Tutorial_Gromacs-2019.pdf 
+Fundamental analysis is also generated with gromacs tools (temperature/pressure/rmsd/rmsf/...), and the production trajectories are also cleaned with trjconv (imaging/protein centred/water stripped), but all the original trajectories are kept.  
+Feel free to make other analysis of course, like trajectory clustering with TTClust https://github.com/tubiana/TTClust 😇
 
 ## Disclamer
 * Each system is unique. This protocol and MD parameters is not adapted for all systems. If your system crash, you may have to tweak MDP parameters.  
-* Ligand parametrisation is *"quick and dirty"*, For a more stable MD system you may have to tweak acpype parameters (and check the hydrogens that are added with babel).
+* Ligand parametrisation is *"quick and dirty"*, For a more stable MD system you may have to tweak ACPYPE parameters (and check the hydrogens that are added with babel).
 
 
-## Dependancies
-- this script only work on linux (maybe mac) and use the BASH syntax.
-- For ligand parametrization I use ACPYPE (https://github.com/alanwilter/acpype) which can generate parameters for Amber, Gromacs and Charmm. Please cite this paper if you use ACPYPE: https://doi.org/10.1016/j.softx.2019.100241.  
-   1. To install acpype, I sugg0est you to install first miniconda (if you don't already have conda https://docs.conda.io/en/latest/miniconda.html) and the create a new conda environement with the command `conda create -n acpype -c conda-forge acpype` 
+## Dependencies
+- this script only works on Linux (maybe Mac) and use the BASH syntax.
+- For ligand parametrisation, I use ACPYPE (https://github.com/alanwilter/acpype) which can generate parameters for Amber, Gromacs and Charmm. Please cite this paper if you use ACPYPE: https://doi.org/10.1016/j.softx.2019.100241.  
+   1. To install ACPYPE, I sugg0est you to install first Miniconda (if you don't already have conda https://docs.conda.io/en/latest/miniconda.html) and the create a new conda environment with the command `conda create -n acpype -c conda-forge acpype` 
    2. then activate the environment with `conda activate acpype`
 
 ## How to
-1. Make sure you have all the dependancies 
-    1. If you have a protein-ligand system, make sur acpype is installed (see **parameters**)
+1. Make sure you have all the dependencies 
+    1. If you have a protein-ligand system, make sure acpype is installed (see **parameters**)
     2. Gromacs
     3. (optional) DSSP version 3
 2. Clone this repository with the command `git clone https://github.com/tubiana/protocolGromacs.git`
@@ -36,14 +36,14 @@ You have to make some changes in the script file (runGromacs).
 - **BOXSIZE**: Periodic box size in nm (between protein and box facet) default is **1.2**
 - **BOXTYPE**: Box type. Default is **cubic** (see http://manual.gromacs.org/documentation/5.1.4/onlinehelp/gmx-editconf.html for more details)
 - **NT**: Number of CPU cores. Default is **8**
-- **WATER**: Water type. Default is **tip3p**
-- **NUMBEROFREPLICAS**: Number of replicas (same simulation will be done 3 times from the minimisation). Default is **3**
+- **WATER**: Water-type. Default is **tip3p**
+- **NUMBEROFREPLICAS**: Number of replicas (the same simulation will be done 3 times from the minimisation). Default is **3**
 - **FF**: Force field, default is **amber99sb-ildn**
-- **SIMULATIONTIME**: Simulation time in `ns`. Default is **100**. The script will automatically calculate and modify the number of steep according the timestep in mdp/md_prod.mpd.
+- **SIMULATIONTIME**: Simulation time in `ns`. Default is **100**. The script will automatically calculate and modify the number of steep according to the timestep in mdp/md_prod.mpd.
 
 ## Workflow
 
-Here's a picture describing the workflow in this script, but you can find more information on each steps on my tutorial http://tubiana.me/teaching_files/biocat2020/Tutorial_Gromacs-2019.pdf. You can of course modify my script as you want :-)
+Here's a picture describing the workflow in this script, but you can find more information on each step on my tutorial http://tubiana.me/teaching_files/biocat2020/Tutorial_Gromacs-2019.pdf. You can, of course, modify my script as you want :-)
 
 ![](img/gromacs_protocol.png "gromacs_protocol" )
 
@@ -69,7 +69,7 @@ Here's a description of the folder structure after a simulation job:
 
 
 ## Last thing...
-Have fun with MD and send me a mail if or open an issue if you have any issues, or just if you used this script and want to thanks me, I will be please to know that it was useful for someone 🙂
+Have fun with MD and send me a mail if or open an issue if you have any problems, or just if you used this script and want to thanks me, I will be please to know that it was useful for someone 🙂
 
 
 
