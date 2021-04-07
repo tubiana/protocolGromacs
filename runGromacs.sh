@@ -69,7 +69,7 @@ EOF
     cd receptor
 
     #Preparing topology
-    $GMX pdb2$GMX -f receptor.pdb -o receptor_GMX.pdb -water $WATER -ignh -ff $FF
+    $GMX pdb2gmx -f receptor.pdb -o receptor_GMX.pdb -water $WATER -ignh -ff $FF
 
     #Copy files from receptors/ligand folders.
     cd ../../
@@ -111,7 +111,7 @@ else
 	########################
 	##   TOPOLOGIE Creation
 	#######################
-	$GMX pdb2GMX -f $PDB".pdb" -o $PDB"_processed.gro" -water $WATER -ignh -ff $FF
+	$GMX pdb2gmx -f $PDB".pdb" -o $PDB"_processed.gro" -water $WATER -ignh -ff $FF
 	########################
 	##   Solvatation
 	#######################
