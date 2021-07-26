@@ -18,7 +18,7 @@ Feel free to make other analysis of course, like trajectory clustering with TTCl
 - For ligand parametrisation, I use ACPYPE (https://github.com/alanwilter/acpype) which can generate parameters for Amber, Gromacs and Charmm. Please cite this paper if you use ACPYPE: https://doi.org/10.1016/j.softx.2019.100241.  
    1. To install ACPYPE, I sugg0est you to install first Miniconda (if you don't already have conda https://docs.conda.io/en/latest/miniconda.html) and the create a new conda environment with the command `conda create -n acpype -c conda-forge acpype` 
    2. then activate the environment with `conda activate acpype`
-   3. Hydrogens on ligand: openbabel. You can install it with `conda install -c conda-force open-babel`
+   3. Hydrogens on ligand: openbabel. You can install it with `conda install -c conda-forge openbabel`
    
 Here's a unique command line to create a environment with every depencencies  
 `conda create -n gmx -c conda-forge -c salilab acpype dssp`  
