@@ -17,8 +17,10 @@ BOXTYPE=cubic #Box type
 NT=8 #Number of core.
 WATER=tip3p #Water type
 NUMBEROFREPLICAS=3 #Number of replica
-FF=amber99sb-ildn #Force field
+FF=charmm36-jul2021 #Force field
 SIMULATIONTIME=100 #Simulation time in nanosec. Will be converted in fs and modified in the mdp file.
+pname=SOD #Positive Ions name, amber = NA, charmm = SOD
+nname=CLA #Negative Ions Name. Amber = CL, Charmm = CLA
 
 #---------  HPC SETUP  -----------
 MPI="" #If you have to submit jobs with MPI softwares like "mpirun -np 10". Add the command here
@@ -130,7 +132,7 @@ $GMX solvate -cp $PDB"_newbox.gro" -cs spc216.gro -o $PDB"_solv.gro" -p topol.to
 #######################
 $GMX grompp -f mdp/ions.mdp -c $PDB"_solv.gro" -p topol.top -o ions.tpr --maxwarn 1
 
-echo "SOL" | $GMX genion -s ions.tpr -o $PDB"_solv_ions.gro" -p topol.top -pname NA -nname CL -neutral
+echo "SOL" | $GMX genion -s ions.tpr -o $PDB"_solv_ions.gro" -p topol.top -pname $pname -nname $nname -neutral
 
 
  
@@ -143,6 +145,7 @@ for ((i=0; i<$NUMBEROFREPLICAS; i++))
 	cp ../$PDB"_solv_ions.gro" .
 	cp ../topol.top .
 	cp ../*.itp .
+	cp -r ../charmm36-jul2021.ff .
 
 
 	#######################
