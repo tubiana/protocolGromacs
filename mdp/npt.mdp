@@ -27,8 +27,6 @@ energygrps              = System        ; group(s) to write to energy file
 ns_type                 = grid          ; method of updating neighbor list
 nstlist                 = 20               ; with Verlet lists the optimal nstlist is >= 10, with GPUs >= 20.
 rlist                   = 1.2              ; short-range neighborlist cutoff (in nm)
-rcoulomb                = 1.2              ; short-range electrostatic cutoff (in nm)
-rvdw                    = 1.2              ; short-range van der Waals cutoff (in nm)
 rlistlong               = 1.2              ; long-range neighborlist cutoff (in nm)
 pbc                     = xyz           ; periodic boundary conditions in all directions
 
@@ -39,7 +37,7 @@ rcoulomb                = 1.2           ; [nm] distance for Coulomb cut-off
 ; 7.3.11 VdW
 vdwtype                 = cut-off       ; twin-range cut-off with rlist where rvdw >= rlist
 rvdw                    = 1.2           ; [nm] distance for LJ cut-off
-DispCorr                = EnerPres      ; apply long range dispersion corrections for energy
+DispCorr                = no      ; apply long range dispersion corrections for energy
 
 ; 7.3.13 Ewald
 fourierspacing          = 0.16          ; [nm] grid spacing for FFT grid when using PME
@@ -72,7 +70,5 @@ lincs_iter              = 1             ; number of iterations to correct for ro
 lincs_warnangle         = 30            ; [degrees] maximum angle that a bond can rotate before LINCS will complain
 
 ; Specific to Charmm36, check https://manual.gromacs.org/documentation/current/user-guide/force-fields.html. 
-vdwtype         = cutoff
 vdw-modifier    = force-switch
 rvdw-switch     = 1.0
-DispCorr        = no
