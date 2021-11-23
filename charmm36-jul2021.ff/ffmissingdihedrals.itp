@@ -1,0 +1,14 @@
+; CHARMM-port for GROMACS
+; created with charmm2gmx version 0.6.dev1+g077b6a1 on 2021-10-05 08:46:25.141262
+; Code: https://gitlab.com/awacha/charmm2gmx
+; Documentation: https://awacha.gitlab.com/charmm2gmx
+; Charmm2GMX written by András Wacha, based on the original port by 
+; E. Prabhu Raman, Justin A. Lemkul, Robert Best and Alexander D. MacKerell, Jr.
+; Dummy zero dihedral types for those which are missing in CHARMM
+; Note: in some residue topologies in CHARMM, especially in the CGenFF part (e.g. C3, BUTY) some dihedrals have no
+; corresponding interaction parameters based on the types of the participating atoms (e.g. C1-C2-C3-C4 in BUTY). 
+; CHARMM simply ignores these dihedrals, giving you messages like 
+; "CHECKDH> dihedral :    1    3    4    7 will NOT be generated". Grompp however gives you an error.
+; As a workaround, this file contains [ dihedraltypes ] with zero force constant for these dihedral types.
+;
+; This file is presently empty, you can populate it by using `charmm2gmx findmissingpars`. 

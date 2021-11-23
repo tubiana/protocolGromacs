@@ -1,0 +1,62 @@
+; CHARMM-port for GROMACS
+; created with charmm2gmx version 0.6.dev1+g077b6a1 on 2021-10-05 08:46:25.038578
+; Code: https://gitlab.com/awacha/charmm2gmx
+; Documentation: https://awacha.gitlab.com/charmm2gmx
+; Charmm2GMX written by András Wacha, based on the original port by 
+; E. Prabhu Raman, Justin A. Lemkul, Robert Best and Alexander D. MacKerell, Jr.
+; Termini database from the CHARMM force field
+
+[ None ]
+; Empty, do-nothing terminus
+
+; residue topologies from file toppar_c36_jul21/top_all36_na.rtf
+
+[ 5MET ]
+; 5'-ribose METHYL patch
+[ replace ]
+C5'    CN9       12.011000  -0.2700
+H5'    HN9        1.008000   0.0900
+H5''   HN9        1.008000   0.0900
+[ add ]
+1   5   H53'  C5'    C4'    H5'    H5''  
+  HN9        1.008000   0.0900  -1
+[ delete ]
+ O5'
+ P
+ O1P
+ O2P
+
+[ 5PHO ]
+; 5'terminal PHOSPHATE patch
+[ replace ]
+O1P    ON3       15.999400  -0.8200
+O2P    ON3       15.999400  -0.8200
+O5'    ON2       15.999400  -0.6200
+[ add ]
+1   5   O5T   P      O5'    O1P    O2P   
+  ON4       15.999400  -0.6800  -1
+1   2   H5T   O5T    P      O5'   
+  HN4        1.008000   0.3400  -1
+
+[ 5POM ]
+; 5'terminal Methyl-Phosphate patch
+[ add ]
+1   5   O5T   P      O5'    O1P    O2P   
+  ON2       15.999400  -0.5700  -1
+1   2   C5T   O5T    P      O1P   
+  CN9       12.011000  -0.1700  -1
+3   4   H5T   C5T    O5T    P     
+  HN9        1.008000   0.0900  -1
+
+[ 5TER ]
+; 5'-terminal HYDROXYL patch, from MeOH
+[ replace ]
+O5'    ON5       15.999400  -0.6600
+C5'    CN8B      12.011000   0.0500
+[ add ]
+1   2   H5T   O5'    C5'    C4'   
+  HN5        1.008000   0.4300  -1
+[ delete ]
+ P
+ O1P
+ O2P
