@@ -60,4 +60,3 @@ gen_temp       = 300                    ; reference temperature, for protein in 
 vdwtype         = cutoff
 vdw-modifier    = force-switch
 rvdw-switch     = 1.0
-DispCorr        = no
