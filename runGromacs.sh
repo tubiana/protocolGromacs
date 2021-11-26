@@ -226,7 +226,7 @@ with open("mdp/md_prod.mdp",'r') as f:
         stepmatch = restep.match(line)
         if stepmatch and float(dt) > 0:
             nsteps = int(simulationtime)/dt
-            line = "nsteps            = {}        ; {} * {} = {} ps or {} ns\n".format(int(nsteps),dt,nsteps,nsteps, dt*nsteps, simulationtime/1000)
+            line = "nsteps            = {}        ; {} * {} = {} ps or {} ns\n".format(int(nsteps),dt,nsteps, dt*nsteps, simulationtime/1000)
         outputLines.append(line)
     with open("mdp/md_prod.mdp",'w') as f:
         for line in outputLines:
