@@ -2,7 +2,7 @@ title             = production MD for protein in explicit water
 
 ; Run parameters
 integrator        = md              ; leap-frog algorithm
-nsteps            = 500000        ; 0.002 * 992500000.0 = 992500000.0 ps or 1985000.0 ns
+nsteps            = 50000000        ; 0.002 * 50000000.0 = 100000.0 ps or 100.0 ns
 dt                = 0.002           ; 2 fs
 
 ; Output control
