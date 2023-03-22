@@ -254,6 +254,11 @@ fi
 	rm "md_"$PDB"_clean_temp.pdb"
 	
 	echo "non-Water" | $GMX convert-tpr -s "md_"$PDB"_prod.tpr" -o tpr_nowat.tpr
+	
+	# Create a smooth trajectory
+	echo "Protein" | $GMX -s tpr_nowat.tpr -f "md_"$PDB"_clean_nowat.xtc" -ol "md_"$PDB"_clean_nowat_filtered.xtc" -all -fit
+
+
 
 	cd ../../
 	#Final graph
