@@ -12,18 +12,22 @@ FILE="" #<<<<<<<<<<<<<<<<<<<<<<<<< PUT THE PDB NAME HERE (without the extension)
 LIGNAME="" #<<<<<<<<<<<<<<<<<<<<<<  #PUT LIGAND NAME HERE, leave it blank if no ligand.
 
 #---------  SIMU SETUP  -----------
-BOXSIZE=1.2 #cubic simulation boxsiwe
+BOXSIZE=1.5 #cubic simulation boxsiwe
 BOXTYPE=cubic #Box type
-NT=8 #Number of core.
+NT=20 #Number of core.
 WATER=tip3p #Water type
-NUMBEROFREPLICAS=3 #Number of replica
+NUMBEROFREPLICAS=1 #Number of replica
 FF=amber99sb-ildn #Force field
 SIMULATIONTIME=100 #Simulation time in nanosec. Will be converted in fs and modified in the mdp file.
 
 #---------  HPC SETUP  -----------
 MPI="" #If you have to submit jobs with MPI softwares like "mpirun -np 10". Add the command here
 GMX=gmx #GMX command (can be "$GMX_mpi" sometimes. Just change it here
-
+#THOSE COMMANDS 
+GPU0="-gpu_id 0 -ntmpi 1 -ntomp 20 -nb gpu -bonded gpu -pin on -pinstride 0 -nstlist 100 -pinoffset 49"
+GPU1="-gpu_id 1 -ntmpi 1 -ntomp 20 -nb gpu -bonded gpu -pin on -pinstride 0 -nstlist 100 -pinoffset 0"
+MDRUN_CPU="$GMX mdrun -nt $NT"
+MDRUN_GPU="$GMX mdrun $GPU0"
 if [ ! -z "$LIGNAME" ]
 then
       #Create parameters directories
@@ -149,7 +153,7 @@ for ((i=0; i<$NUMBEROFREPLICAS; i++))
 	## MINIMISATION
 	#######################
 	$GMX grompp -f mdp/em.mdp -c $PDB"_solv_ions.gro" -p topol.top -o em.tpr
-	$MPI $GMX mdrun -v -deffnm em -nt $NT
+	$MPI $MDRUN_CPU -v -deffnm em 
 
 
 	#Cleaning
@@ -170,7 +174,7 @@ for ((i=0; i<$NUMBEROFREPLICAS; i++))
 	## temperature 300
 	#######################
 	$GMX grompp -f mdp/nvt_300.mdp -c results/mini/em.gro -r results/mini/em.gro  -p topol.top -o nvt_300.tpr -maxwarn 2
-	$MPI $GMX mdrun -deffnm nvt_300 -v -nt $NT
+	$MPI $MDRUN_GPU -deffnm nvt_300 -v 
 	#temperature_graph
 
 	#cleaning
@@ -185,7 +189,7 @@ for ((i=0; i<$NUMBEROFREPLICAS; i++))
 	## Pression
 	#######################
 	$GMX grompp -f mdp/npt.mdp -c results/nvt/nvt_300.gro -r results/nvt/nvt_300.gro -t results/nvt/nvt_300.cpt -p topol.top -o npt_ab.tpr -maxwarn 2
-	$MPI $GMX mdrun -deffnm npt_ab -v -nt $NT
+	$MPI $MDRUN_GPU -deffnm npt_ab -v 
 
 	#cleaning
 	mkdir -p results/npt
@@ -233,7 +237,7 @@ EOF
 fi
 	
 	$GMX grompp -f mdp/md_prod.mdp -c results/npt/npt_ab.gro -t results/npt/npt_ab.cpt -p topol.top -o "md_"$PDB"_prod.tpr" -maxwarn 2
-	$MPI $GMX mdrun -deffnm "md_"$PDB"_prod"  -v -nt $NT
+	$MPI $MDRUN_GPU -deffnm "md_"$PDB"_prod"  -v
 
 	mkdir -p results/prod
 	mv md_* results/prod 2> /dev/null
