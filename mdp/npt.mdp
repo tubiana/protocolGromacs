@@ -6,7 +6,7 @@ define                  = -DPOSRES              ; defines to pass to the preproc
 integrator              = md                    ; md integrator
 tinit                   = 0                     ; [ps] starting time for run
 dt                      = 0.002                 ; [ps] time step for integration
-nsteps                  = 50000               ; maximum number of steps to integrate, 0.002 * 50000 = 100 ps
+nsteps                  = 250000               ; maximum number of steps to integrate, 0.002 * 50000 = 500 ps
 comm_mode               = Linear                ; remove center of mass translation
 nstcomm                 = 1                     ; [steps] frequency of mass motion removal
 comm_grps               = Protein Non-Protein   ; group(s) for center of mass motion removal
