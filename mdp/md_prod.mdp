@@ -6,11 +6,12 @@ nsteps            = 50000000        ; 0.002 * 50000000.0 = 100000.0 ps or 100.0 
 dt                = 0.002           ; 2 fs
 
 ; Output control
-nstxout           = 5000                ; save coordinates every 10 ps
-nstvout           = 5000                ; save velocities every 10 ps
-nstxtcout         = 5000             ; xtc compressed trajectory output every 10 ps
-nstenergy         = 5000             ; save energies every 10 ps
-nstlog            = 5000             ; update log file every 10 ps
+nstxout           = 50000                ; save coordinates every 100 ps
+nstvout           = 50000                ; save velocities every 100 ps
+nstxtcout         = 50000             ; xtc compressed trajectory output every 100 ps
+nstenergy         = 50000             ; save energies every 100 ps
+nstlog            = 50000             ; update log file every 100 ps
+nstxout-compressed = 50000
 nstcomm           = 1000               ; center of mass motion removal
 ; Bond parameters
 constraint_algorithm = lincs         ; holonomic constraints
