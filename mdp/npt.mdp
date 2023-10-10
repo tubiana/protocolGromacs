@@ -61,7 +61,7 @@ refcoord_scaling        = com
 gen_vel                 = no            ; velocity generation turned off
 
 ; 7.3.18 Bonds
-constraints             = all-bonds     ; convert all bonds to constraints
+constraints             = h-bonds     ; convert h-bonds only to constraints
 constraint_algorithm    = LINCS         ; LINear Constraint Solver
 continuation            = yes           ; apply constraints to the start configuration
 lincs_order             = 4             ; highest order in the expansion of the contraint coupling matrix

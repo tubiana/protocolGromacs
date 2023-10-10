@@ -17,8 +17,8 @@ nstlog                  = 500       ; update log file every 1.0 ps
 
 ; Bond parameters
 continuation            = no        ; first dynamics run
-constraint_algorithm    = LINCS     ; holonomic constraints
-constraints             = all-bonds   ; bonds involving H are constrained
+constraint_algorithm    = lincs     ; holonomic constraints
+constraints             = h-bonds   ; bonds involving H are constrained
 lincs_iter              = 1         ; accuracy of LINCS
 lincs_order             = 4         ; also related to accuracy
 

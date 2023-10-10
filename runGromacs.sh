@@ -18,7 +18,7 @@ NT=20 #Number of core.
 WATER=tip3p #Water type
 NUMBEROFREPLICAS=1 #Number of replica
 FF=amber99sb-ildn #Force field
-SIMULATIONTIME=100 #Simulation time in nanosec. Will be converted in fs and modified in the mdp file.
+SIMULATIONTIME=500 #Simulation time in nanosec. Will be converted in fs and modified in the mdp file.
 
 #---------  HPC SETUP  -----------
 MPI="" #If you have to submit jobs with MPI softwares like "mpirun -np 10". Add the command here
@@ -136,6 +136,41 @@ $GMX grompp -f mdp/ions.mdp -c $PDB"_solv.gro" -p topol.top -o ions.tpr --maxwar
 
 echo "SOL" | $GMX genion -s ions.tpr -o $PDB"_solv_ions.gro" -p topol.top -pname NA -nname CL -neutral
 
+#######################
+# MODIFYING FILES IF LIGAND IS DETECTED
+#######################
+if [ ! -z "$LIGNAME" ]
+then
+#1. Add constraints to the ligand
+ndx=$($GMX make_ndx -f complex_solv_ions.gro -o ligand.ndx <<EOF
+1 | r LIG
+r SOL | r CL | r NA
+q
+EOF
+)
+
+#2. Rename protein+ligand group and Water+ions group
+$(python <<EOF
+import re
+with open('index.ndx', 'r') as file:
+    content = file.read()
+matches = re.findall(r'\[ \w+ \]', content)
+if matches:
+    content = content.replace(matches[-1], '[ Water_Ions ]')
+    content = content.replace(matches[-2], '[ Protein_Ligand ]')
+    with open('index2.ndx', 'w') as file:
+        file.write(content)
+EOF
+)
+
+#Now replace the groups in Equilibration and production mdp files
+sed -i 's/Protein Non-Protein/Protein_Ligand Water_Ions/g' mdp/nvt_300.mdp
+sed -i 's/Protein Non-Protein/Protein_Ligand Water_Ions/g' mdp/npt.mdp
+sed -i 's/Protein Non-Protein/Protein_Ligand Water_Ions/g' mdp/md_prod.mdp
+
+
+INDEX="-n index.ndx"
+fi
 
  
 for ((i=0; i<$NUMBEROFREPLICAS; i++))
@@ -152,7 +187,7 @@ for ((i=0; i<$NUMBEROFREPLICAS; i++))
 	#######################
 	## MINIMISATION
 	#######################
-	$GMX grompp -f mdp/em.mdp -c $PDB"_solv_ions.gro" -p topol.top -o em.tpr
+	$GMX grompp -f mdp/em.mdp -c $PDB"_solv_ions.gro" -p topol.top -o em.tpr $INDEX
 	$MPI $MDRUN_CPU -v -deffnm em 
 
 
@@ -173,7 +208,7 @@ for ((i=0; i<$NUMBEROFREPLICAS; i++))
 	#######################
 	## temperature 300
 	#######################
-	$GMX grompp -f mdp/nvt_300.mdp -c results/mini/em.gro -r results/mini/em.gro  -p topol.top -o nvt_300.tpr -maxwarn 2
+	$GMX grompp -f mdp/nvt_300.mdp -c results/mini/em.gro -r results/mini/em.gro  -p topol.top -o nvt_300.tpr -maxwarn 2 $INDEX
 	$MPI $MDRUN_GPU -deffnm nvt_300 -v 
 	#temperature_graph
 
@@ -188,7 +223,7 @@ for ((i=0; i<$NUMBEROFREPLICAS; i++))
 	#######################
 	## Pression
 	#######################
-	$GMX grompp -f mdp/npt.mdp -c results/nvt/nvt_300.gro -r results/nvt/nvt_300.gro -t results/nvt/nvt_300.cpt -p topol.top -o npt_ab.tpr -maxwarn 2
+	$GMX grompp -f mdp/npt.mdp -c results/nvt/nvt_300.gro -r results/nvt/nvt_300.gro -t results/nvt/nvt_300.cpt -p topol.top -o npt_ab.tpr -maxwarn 2 $INDEX
 	$MPI $MDRUN_GPU -deffnm npt_ab -v 
 
 	#cleaning
@@ -233,7 +268,9 @@ with open("mdp/md_prod.mdp",'r') as f:
         for line in outputLines:
             f.write(line)
 EOF
-)          
+)
+
+
 fi
 	
 	$GMX grompp -f mdp/md_prod.mdp -c results/npt/npt_ab.gro -t results/npt/npt_ab.cpt -p topol.top -o "md_"$PDB"_prod.tpr" -maxwarn 2
