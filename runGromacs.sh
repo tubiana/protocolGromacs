@@ -12,7 +12,7 @@ FILE="" #<<<<<<<<<<<<<<<<<<<<<<<<< PUT THE PDB NAME HERE (without the extension)
 LIGNAME="" #<<<<<<<<<<<<<<<<<<<<<<  #PUT LIGAND NAME HERE, leave it blank if no ligand.
 
 #---------  SIMU SETUP  -----------
-BOXSIZE=3 #cubic simulation boxsiwe
+BOXSIZE=1.5 #cubic simulation boxsiwe
 BOXTYPE=cubic #Box type
 NT=20 #Number of core.
 WATER=tip3p #Water type
