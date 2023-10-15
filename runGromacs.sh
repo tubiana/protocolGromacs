@@ -130,7 +130,7 @@ EOF
 
 #Generate idx group for ligand without hydrogens (for restraints)
 ndx=$($GMX make_ndx -f param/ligand/ligand.acpype/ligand_NEW.pdb -o lig_noh.ndx <<EOF
-r $LIGNAME & !a H*
+r LIG & !a H*
 name 3 LIG-H
 q
 EOF
@@ -183,7 +183,7 @@ if [ ! -z "$LIGNAME" ]
 then
 #1. Add constraints to the ligand
     ndx=$($GMX make_ndx -f complex_solv_ions.gro -o index.ndx <<EOF
-1 | r $LIGNAME
+1 | r LIG
 r SOL | r CL | r NA
 q
 EOF
