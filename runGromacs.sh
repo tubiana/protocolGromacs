@@ -135,7 +135,9 @@ name 3 LIG-H
 q
 EOF
 )	
-    echo "LIG-H" | $GMX genrestr -f param/ligand/ligand.acpype/ligand_NEW.pdb -o posre_ligand.itp -n lig_noh.ndx -fc 1000 1000 1000
+    #echo "LIG-H" | $GMX genrestr -f param/ligand/ligand.acpype/ligand_NEW.pdb -o posre_ligand.itp -n lig_noh.ndx -fc 1000 1000 1000
+	#copying position restrained
+	cp param/ligand/ligand.acpype/posre_ligand.itp .
 	
 	#Include posre_ligand.itp AT THE END!!!!!!! of  ligand.itp
 	echo '
