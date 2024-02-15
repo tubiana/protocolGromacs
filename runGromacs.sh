@@ -304,6 +304,9 @@ for ((i=0; i<$NUMBEROFREPLICAS; i++))
 	echo "Protein non-Water" | $GMX trjconv -s "md_"$PDB"_prod.tpr" -f "md_"$PDB"_clean_temp.xtc" -o "md_"$PDB"_clean_nowat.xtc" -fit rot+trans
 
 	echo "Protein non-Water" | $GMX trjconv -s "md_"$PDB"_prod.tpr" -f "md_"$PDB"_clean_temp.xtc" -o "md_"$PDB"_clean_nowat.pdb" -pbc nojump -ur compact -center -b 0 -e 0
+ 
+ 	#extract last frame in PDB only for the protein.
+	echo "Protein Protein" | $GMX trjconv -s "md_"$PDB"_prod.tpr" -f "md_"$PDB"_clean_temp.xtc" -o "md_"$PDB"_protein_LF.pdb" -pbc nojump -ur compact -center -dump 9999999999999999
 
 	rm "md_"$PDB"_clean_temp.pdb"
 	
