@@ -317,5 +317,54 @@ ls
 	# DSSP
 	#####
 	$GMX dssp -f results/prod/md_${PDB}_clean_nowat.xtc -s tpr_nowat.tpr -o dssp.dat -sel Protein
-	
+
+	pythyon_command=$(python <<EOF
+	import matplotlib.pyplot as plt
+import numpy as np
+from matplotlib import colors
+import matplotlib.patches as mpatches
+
+
+sse = open("dssp.dat","r").readlines()
+
+dict_sse = {"~": 0, "H": 1,"B": 2,"E": 2,"G": 1,"I": 1,"P": 1,"S": 0,"T": 0,"=": 0,}
+
+label_dict = {0:"loop", 1:"α-helix", 2:"β-sheet"}
+color_dict = {0:"white",1:"red",2:"yellow"}
+
+#replace sse with numbers
+simplified_sse = []
+for line in sse:
+line = line.strip()
+simplified_sse.append([dict_sse[x] for x in line])
+
+simplified_sse = np.asarray(simplified_sse).T
+
+
+# Define matplotlib colors
+col = ['r', '#FFFF00', 'w', '#DCDCDC', '#FFA500', 'm', '#FFC0CB', 'c', 'b']
+cmap = colors.ListedColormap(col)
+boundaries = [0, 1, 2, 3, 4, 5, 6, 7, 8]
+norm = colors.BoundaryNorm(boundaries, cmap.N, clip=True)
+#add a black border to the following patch
+
+patches = [mpatches.Patch(color=col[i], label=label_dict[i],) for i in range(len(label_dict.values()))]
+for ha in patches:
+ha.set_linewidth(1)
+ha.set_edgecolor('black')   
+
+fig, ax = plt.subplots()
+
+ax.set_xlabel("Frame")
+ax.set_ylabel("Residue")
+ax.set_title("Secondary Structure Conservation")
+
+plt.imshow(simplified_sse, cmap=cmap, norm=norm, aspect="auto", interpolation="None")
+plt.legend(handles=patches, loc='upper center', bbox_to_anchor=(0.5, -0.15), ncol=5)
+plt.tight_layout()
+plt.savefig("dssp.png",dpi=300)
+EOF
+)
+
+	echo "SIMULATION AND ANALYSIS DONE".	
 done
