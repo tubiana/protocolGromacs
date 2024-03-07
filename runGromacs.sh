@@ -1,4 +1,5 @@
 #!/bin/bash
+
 #Author: Thibault Tubiana, PhD, 2020
 #Version: 1.3.0
 
@@ -18,20 +19,7 @@ NT=20 #Number of core.
 WATER=tip3p #Water type
 NUMBEROFREPLICAS=1 #Number of replica
 FF=amber99sb-ildn #Force field
-SIMULATIONTIME=500 #Simulation time in nanosec. Will be converted in fs and modified in the mdp file.
-
-
-#---------  HPC SETUP  -----------
-MPI="" #If you have to submit jobs with MPI softwares like "mpirun -np 10". Add the command here
-GMX=gmx #GMX command (can be "$GMX_mpi" sometimes. Just change it here
-#THOSE COMMANDS 
-GPU0="-gpu_id 0 -ntmpi 4 -ntomp 2 -nb gpu -bonded gpu -npme 1 -pme gpu -pmefft gpu -pin on -pinstride 0 -nstlist 100 -pinoffset 49" 
-GPU1="-gpu_id 1 -ntmpi 4 -ntomp 2 -nb gpu -bonded gpu -npme 1 -pme gpu -pmefft gpu -pin on -pinstride 0 -nstlist 100 -pinoffset 0"
-export GMX_GPU_PME_PP_COMMS=true
-export GMX_FORCE_UPDATE_DEFAULT_GPU=1
-export GMX_GPU_DD_COMMS=true
-MDRUN_CPU="$GMX mdrun -nt $NT"
-MDRUN_GPU="$GMX mdrun $GPU0"
+SIMULATIONTIME=200 #Simulation time in nanosec. Will be converted in fs and modified in the mdp file.
 
 
 	#Setup simulationtime
@@ -232,7 +220,7 @@ for ((i=0; i<$NUMBEROFREPLICAS; i++))
 	## MINIMISATION
 	#######################
 	$GMX grompp -f mdp/em.mdp -c $PDB"_solv_ions.gro" -p topol.top -o em.tpr $INDEX
-	$MPI $MDRUN_CPU -v -deffnm em 
+	$MDRUNmini -v -deffnm em 
 
 
 	#Cleaning
@@ -243,7 +231,7 @@ for ((i=0; i<$NUMBEROFREPLICAS; i++))
 	mv mdout.mdp results/mini/
 	mv *.gro gro/
 	#potential energy graph
-	echo "11 0" | $GMX energy -f results/mini/em.edr -o graph/mini_"$PDB"_pot.xvg
+	echo "11 0" | $GMX energy -f results/mini/em.edr -o graph/mini_${PDB}_pot.xvg
 
 
 
@@ -253,7 +241,7 @@ for ((i=0; i<$NUMBEROFREPLICAS; i++))
 	## temperature 300
 	#######################
 	$GMX grompp -f mdp/nvt_300.mdp -c results/mini/em.gro -r results/mini/em.gro  -p topol.top -o nvt_300.tpr -maxwarn 2 $INDEX
-	$MPI $MDRUN_GPU -deffnm nvt_300 -v 
+	$MDRUN -deffnm nvt_300 -v 
 	#temperature_graph
 
 	#cleaning
@@ -268,15 +256,15 @@ for ((i=0; i<$NUMBEROFREPLICAS; i++))
 	## Pression
 	#######################
 	$GMX grompp -f mdp/npt.mdp -c results/nvt/nvt_300.gro -r results/nvt/nvt_300.gro -t results/nvt/nvt_300.cpt -p topol.top -o npt_ab.tpr -maxwarn 2 $INDEX
-	$MPI $MDRUN_GPU -deffnm npt_ab -v 
+	$MDRUN -deffnm npt_ab -v 
 
 	#cleaning
 	mkdir -p results/npt
 	mv npt* results/npt/ 2> /dev/null
 	mv mdout.mdp results/npt_ab/
 	#Pression and density graph
-	echo "17 0" | $GMX energy -f results/npt/npt_ab.edr -o graph/npt_"$PDB"_pressure.xvg
-	echo "22 0" | $GMX energy -f results/npt/npt_ab.edr -o graph/npt_"$PDB"_volume.xvg
+	echo "17 0" | $GMX energy -f results/npt/npt_ab.edr -o graph/npt_${PDB}_pressure.xvg
+	echo "22 0" | $GMX energy -f results/npt/npt_ab.edr -o graph/npt_${PDB}_volume.xvg
 
 
 
@@ -286,75 +274,48 @@ for ((i=0; i<$NUMBEROFREPLICAS; i++))
 	
 
 	
-	$GMX grompp -f mdp/md_prod.mdp -c results/npt/npt_ab.gro -t results/npt/npt_ab.cpt -p topol.top -o "md_"$PDB"_prod.tpr" -maxwarn 2 $INDEX
-	$MPI $MDRUN_GPU -deffnm "md_"$PDB"_prod"  -v
+	$GMX grompp -f mdp/md_prod.mdp -c results/npt/npt_ab.gro -t results/npt/npt_ab.cpt -p topol.top -o "md_${PDB}_prod.tpr" -maxwarn 2 $INDEX
+	$MDRUN -deffnm "md_${PDB}_prod"  -v
 
 	mkdir -p results/prod
 	mv md_* results/prod 2> /dev/null
 	mv mdout.mdp results/prod/
 
-	echo "backbone backbone" | $GMX rms -s "results/prod/md_"$PDB"_prod.tpr" -f "results/prod/md_"$PDB"_prod.trr" -o graph/prod_"$PDB"_rmsd.xvg -tu ns
+	echo "backbone backbone" | $GMX rms -s "results/prod/md_${PDB}_prod.tpr" -f "results/prod/md_${PDB}_prod.trr" -o graph/prod_${PDB}_rmsd.xvg -tu ns
 
 	cd results/prod
 
-	echo "Protein System" | $GMX trjconv -s "md_"$PDB"_prod.tpr" -f "md_"$PDB"_prod.trr" -o "md_"$PDB"_clean_temp.xtc" -pbc nojump -ur compact -center
+	echo "Protein System" | $GMX trjconv -s "md_${PDB}_prod.tpr" -f "md_${PDB}_prod.trr" -o "md_${PDB}_clean_temp.xtc" -pbc nojump -ur compact -center
 
-	echo "Protein System" | $GMX trjconv -s "md_"$PDB"_prod.tpr" -f "md_"$PDB"_clean_temp.xtc" -o "md_"$PDB"_clean_full.xtc" -fit rot+trans
+	echo "Protein System" | $GMX trjconv -s "md_${PDB}_prod.tpr" -f "md_${PDB}_clean_temp.xtc" -o "md_${PDB}_clean_full.xtc" -fit rot+trans
 
-	echo "Protein non-Water" | $GMX trjconv -s "md_"$PDB"_prod.tpr" -f "md_"$PDB"_clean_temp.xtc" -o "md_"$PDB"_clean_nowat.xtc" -fit rot+trans
+	echo "Protein non-Water" | $GMX trjconv -s "md_${PDB}_prod.tpr" -f "md_${PDB}_clean_temp.xtc" -o "md_${PDB}_clean_nowat.xtc" -fit rot+trans
 
-	echo "Protein non-Water" | $GMX trjconv -s "md_"$PDB"_prod.tpr" -f "md_"$PDB"_clean_temp.xtc" -o "md_"$PDB"_clean_nowat.pdb" -pbc nojump -ur compact -center -b 0 -e 0
+	echo "Protein non-Water" | $GMX trjconv -s "md_${PDB}_prod.tpr" -f "md_${PDB}_clean_temp.xtc" -o "md_${PDB}_clean_nowat.pdb" -pbc nojump -ur compact -center -b 0 -e 0
  
  	#extract last frame in PDB only for the protein.
-	echo "Protein Protein" | $GMX trjconv -s "md_"$PDB"_prod.tpr" -f "md_"$PDB"_clean_temp.xtc" -o "md_"$PDB"_protein_LF.pdb" -pbc nojump -ur compact -center -dump 9999999999999999
+	echo "Protein Protein" | $GMX trjconv -s "md_${PDB}_prod.tpr" -f "md_${PDB}_clean_temp.xtc" -o "md_${PDB}_protein_LF.pdb" -pbc nojump -ur compact -center -dump 9999999999999999
 
-	rm "md_"$PDB"_clean_temp.pdb"
+	rm "md_${PDB}_clean_temp.pdb"
 	
-	echo "non-Water" | $GMX convert-tpr -s "md_"$PDB"_prod.tpr" -o tpr_nowat.tpr
+	echo "non-Water" | $GMX convert-tpr -s "md_${PDB}_prod.tpr" -o tpr_nowat.tpr
 	
 	# Create a smooth trajectory
-	echo "Protein" | $GMX -s tpr_nowat.tpr -f "md_"$PDB"_clean_nowat.xtc" -ol "md_"$PDB"_clean_nowat_filtered.xtc" -all -fit
+	echo "Protein" | $GMX -s tpr_nowat.tpr -f "md_${PDB}_clean_nowat.xtc" -ol "md_${PDB}_clean_nowat_filtered.xtc" -all -fit
 
 
 
 	cd ../../
 	#Final graph
-	echo "backbone backbone" | $GMX rms -s "results/prod/tpr_nowat.tpr" -f "results/prod/md_"$PDB"_clean_nowat.xtc" -o "graph/prod_"$PDB"_rmsd_ca.xvg" -tu ns
-	echo "protein protein" | $GMX rms -s "results/prod/tpr_nowat.tpr" -f "results/prod/md_"$PDB"_clean_nowat.xtc" -o "graph/prod_"$PDB"_rmsd_all.xvg" -tu ns
-	echo "backbone" | $GMX gyrate -s "results/prod/tpr_nowat.tpr" -f "results/prod/md_"$PDB"_clean_nowat.xtc" -o "graph/prod_"$PDB"_gyrate.xvg"
+	echo "backbone backbone" | $GMX rms -s "results/prod/tpr_nowat.tpr" -f "results/prod/md_${PDB}_clean_nowat.xtc" -o "graph/prod_${PDB}_rmsd_ca.xvg" -tu ns
+	echo "protein protein" | $GMX rms -s "results/prod/tpr_nowat.tpr" -f "results/prod/md_${PDB}_clean_nowat.xtc" -o "graph/prod_${PDB}_rmsd_all.xvg" -tu ns
+	echo "backbone" | $GMX gyrate -s "results/prod/tpr_nowat.tpr" -f "results/prod/md_${PDB}_clean_nowat.xtc" -o "graph/prod_${PDB}_gyrate.xvg"
 
-	echo "backbone" | $GMX rmsf -s "results/prod/tpr_nowat.tpr" -f "results/prod/md_"$PDB"_clean_nowat.xtc" -o "graph/prod_"$PDB"_rmsf_ref.xvg" -res
+	echo "backbone" | $GMX rmsf -s "results/prod/tpr_nowat.tpr" -f "results/prod/md_${PDB}_clean_nowat.xtc" -o "graph/prod_${PDB}_rmsf_ref.xvg" -res
 ls
 	#####
-	# TESTING DSSP Installation
+	# DSSP
 	#####
-	export DSSP=`which dssp`
-	if [ -z "$DSSP" ]
-	then
-	      export DSSP=`which mkdssp`
-	else
-		echo "DSSP found. Good!"
-	fi
-
-	if [ -z "$DSSP" ]
-	then
-	      echo "DSSP SOFTWARE NOT FOUND. If you have anaconda or miniconda install, please install it with this command line:"
-		  echo "conda install -c conda-forge -c salilab dssp"
-		  echo "note that the name will be mkdssp"
-		  echo "Trying to install it right now..."
-		  conda install -y -c conda-forge -c salilab dssp
-		  export DSSP=`which mkdssp`
-		if [ -z "$DSSP" ]
-			then
-			      echo "Installation faillure..."
-			else
-				echo "1" |  $GMX do_dssp -s "results/prod/tpr_nowat.tpr" -f "results/prod/md_"$PDB"_clean_nowat.xtc" -o "graph/prod_"$PDB"_ss.xpm" -tu ns -dt 0.05 -ver 3
-				$GMX xpm2ps -f "graph/prod_"$PDB"_ss.xpm" -o "graph/prod_"$PDB"_ss.ps" -by 10 -bx 3
-			fi
-	else
-		echo "Protein" | $GMX do_dssp -s "results/prod/tpr_nowat.tpr" -f "results/prod/md_"$PDB"_clean_nowat.xtc" -o "graph/prod_"$PDB"_ss.xpm" -ver 3 -tu ns -dt 0.05
-		$GMX xpm2ps -f "graph/prod_"$PDB"_ss.xpm" -o "graph/prod_"$PDB"_ss.ps" -by 10 -bx 3
-	fi
-
-	cd ../
+	$GMX dssp -f results/prod/md_${PDB}_clean_nowat.xtc -s tpr_nowat.tpr -o dssp.dat -sel Protein
+	
 done
