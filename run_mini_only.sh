@@ -203,169 +203,20 @@ INDEX=""
 
 fi
 
- 
-for ((i=0; i<$NUMBEROFREPLICAS; i++))
-	do 
-	echo ">>>>> replica_"$((i+1))
-	mkdir "replica_"$((i+1))
-	cd "replica_"$((i+1))
-	cp -R ../mdp .
-	cp ../$PDB"_solv_ions.gro" .
-	cp ../topol.top .
-	cp ../*.itp .
-    cp ../index.ndx . 2> /dev/null
-
-
-	#######################
-	## MINIMISATION
-	#######################
-	$GMX grompp -f mdp/em.mdp -c $PDB"_solv_ions.gro" -p topol.top -o em.tpr $INDEX
-	$MDRUNmini -v -deffnm em 
-
-
-	#Cleaning
-	mkdir -p results/mini
-	mkdir -p gro
-	mkdir graph
-	mv em* results/mini/
-	mv mdout.mdp results/mini/
-	mv *.gro gro/
-	#potential energy graph
-	echo "11 0" | $GMX energy -f results/mini/em.edr -o graph/mini_${PDB}_pot.xvg
-
-
-
-
-
-	#######################
-	## temperature 300
-	#######################
-	$GMX grompp -f mdp/nvt_300.mdp -c results/mini/em.gro -r results/mini/em.gro  -p topol.top -o nvt_300.tpr -maxwarn 2 $INDEX
-	$MDRUN -deffnm nvt_300 -v 
-	#temperature_graph
-
-	#cleaning
-	mkdir -p results/nvt
-	mv nvt* results/nvt/ 2> /dev/null
-	mv mdout.mdp results/nvt/
-
-	#Temparture graph
-	echo "16 0" | $GMX energy -f results/nvt/nvt_300.edr -o graph/temperature_nvt_300.xvg
-
-	#######################
-	## Pression
-	#######################
-	$GMX grompp -f mdp/npt.mdp -c results/nvt/nvt_300.gro -r results/nvt/nvt_300.gro -t results/nvt/nvt_300.cpt -p topol.top -o npt_ab.tpr -maxwarn 2 $INDEX
-	$MDRUN -deffnm npt_ab -v 
-
-	#cleaning
-	mkdir -p results/npt
-	mv npt* results/npt/ 2> /dev/null
-	mv mdout.mdp results/npt_ab/
-	#Pression and density graph
-	echo "17 0" | $GMX energy -f results/npt/npt_ab.edr -o graph/npt_${PDB}_pressure.xvg
-	echo "22 0" | $GMX energy -f results/npt/npt_ab.edr -o graph/npt_${PDB}_volume.xvg
-
-
-
-	#######################
-	## Production 
-	#######################
+mkdir minimization
+cd minimization 
 	
-
-	
-	$GMX grompp -f mdp/md_prod.mdp -c results/npt/npt_ab.gro -t results/npt/npt_ab.cpt -p topol.top -o "md_${PDB}_prod.tpr" -maxwarn 2 $INDEX
-	$MDRUN -deffnm "md_${PDB}_prod"  -v
-
-	mkdir -p results/prod
-	mv md_* results/prod 2> /dev/null
-	mv mdout.mdp results/prod/
-
-	echo "backbone backbone" | $GMX rms -s "results/prod/md_${PDB}_prod.tpr" -f "results/prod/md_${PDB}_prod.trr" -o graph/prod_${PDB}_rmsd.xvg -tu ns
-
-	cd results/prod
-
-	echo "Protein System" | $GMX trjconv -s "md_${PDB}_prod.tpr" -f "md_${PDB}_prod.trr" -o "md_${PDB}_clean_temp.xtc" -pbc nojump -ur compact -center
-
-	echo "Protein System" | $GMX trjconv -s "md_${PDB}_prod.tpr" -f "md_${PDB}_clean_temp.xtc" -o "md_${PDB}_clean_full.xtc" -fit rot+trans
-
-	echo "Protein non-Water" | $GMX trjconv -s "md_${PDB}_prod.tpr" -f "md_${PDB}_clean_temp.xtc" -o "md_${PDB}_clean_nowat.xtc" -fit rot+trans
-
-	echo "Protein non-Water" | $GMX trjconv -s "md_${PDB}_prod.tpr" -f "md_${PDB}_clean_temp.xtc" -o "md_${PDB}_clean_nowat.pdb" -pbc nojump -ur compact -center -b 0 -e 0
- 
- 	#extract last frame in PDB only for the protein.
-	echo "Protein Protein" | $GMX trjconv -s "md_${PDB}_prod.tpr" -f "md_${PDB}_clean_temp.xtc" -o "md_${PDB}_protein_LF.pdb" -pbc nojump -ur compact -center -dump 9999999999999999
-
-	rm "md_${PDB}_clean_temp.pdb"
-	
-	echo "non-Water" | $GMX convert-tpr -s "md_${PDB}_prod.tpr" -o tpr_nowat.tpr
-	
-	# Create a smooth trajectory
-	echo "Protein" | $GMX -s tpr_nowat.tpr -f "md_${PDB}_clean_nowat.xtc" -ol "md_${PDB}_clean_nowat_filtered.xtc" -all -fit
+cp -R ../mdp .
+cp ../$PDB"_solv_ions.gro" .
+cp ../topol.top .
+cp ../*.itp .
+cp ../index.ndx . 2> /dev/null
 
 
+#######################
+## MINIMISATION
+#######################
+$GMX grompp -f mdp/em.mdp -c $PDB"_solv_ions.gro" -p topol.top -o em.tpr $INDEX
+$MDRUNmini -v -deffnm em 
 
-	cd ../../
-	#Final graph
-	echo "backbone backbone" | $GMX rms -s "results/prod/tpr_nowat.tpr" -f "results/prod/md_${PDB}_clean_nowat.xtc" -o "graph/prod_${PDB}_rmsd_ca.xvg" -tu ns
-	echo "protein protein" | $GMX rms -s "results/prod/tpr_nowat.tpr" -f "results/prod/md_${PDB}_clean_nowat.xtc" -o "graph/prod_${PDB}_rmsd_all.xvg" -tu ns
-	echo "backbone" | $GMX gyrate -s "results/prod/tpr_nowat.tpr" -f "results/prod/md_${PDB}_clean_nowat.xtc" -o "graph/prod_${PDB}_gyrate.xvg"
-
-	echo "backbone" | $GMX rmsf -s "results/prod/tpr_nowat.tpr" -f "results/prod/md_${PDB}_clean_nowat.xtc" -o "graph/prod_${PDB}_rmsf_ref.xvg" -res
-ls
-	#####
-	# DSSP
-	#####
-	$GMX dssp -f results/prod/md_${PDB}_clean_nowat.xtc -s tpr_nowat.tpr -o dssp.dat -sel Protein
-
-	#Python code to generate the DDSP graph from the DSSP output.
-	pythyon_command=$(python <<EOF
-import matplotlib.pyplot as plt
-import numpy as np
-from matplotlib import colors
-import matplotlib.patches as mpatches
-
-
-sse = open("dssp.dat","r").readlines()
-
-dict_sse = {"~": 0, "H": 1,"B": 2,"E": 2,"G": 1,"I": 1,"P": 1,"S": 0,"T": 0,"=": 0,}
-
-label_dict = {0:"loop", 1:"α-helix", 2:"β-sheet"}
-color_dict = {0:"white",1:"red",2:"yellow"}
-
-#replace sse with numbers
-simplified_sse = []
-for line in sse:
-    line = line.strip()
-    simplified_sse.append([dict_sse[x] for x in line])
-
-simplified_sse = np.asarray(simplified_sse).T
-
-
-# Define matplotlib colors
-col = ['r', '#FFFF00', 'w', '#DCDCDC', '#FFA500', 'm', '#FFC0CB', 'c', 'b']
-cmap = colors.ListedColormap(col)
-boundaries = [0, 1, 2, 3, 4, 5, 6, 7, 8]
-norm = colors.BoundaryNorm(boundaries, cmap.N, clip=True)
-#add a black border to the following patch
-
-patches = [mpatches.Patch(color=col[i], label=label_dict[i],) for i in range(len(label_dict.values()))]
-for ha in patches:
-    ha.set_linewidth(1)
-    ha.set_edgecolor('black')   
-
-fig, ax = plt.subplots()
-
-ax.set_xlabel("Frame")
-ax.set_ylabel("Residue")
-ax.set_title("Secondary Structure Conservation")
-
-plt.imshow(simplified_sse, cmap=cmap, norm=norm, aspect="auto", interpolation="None")
-plt.legend(handles=patches, loc='upper center', bbox_to_anchor=(0.5, -0.15), ncol=5)
-plt.tight_layout()
-plt.savefig("dssp.png",dpi=300)
-EOF
-)
-
-	echo "SIMULATION AND ANALYSIS DONE".	
-done
+echo "Protein" | $GMX grompp tjconv -f em.gro -s em.tpr -o "${PDB}_minimized.pdb"
