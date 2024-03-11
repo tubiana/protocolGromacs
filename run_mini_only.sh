@@ -219,4 +219,4 @@ cp ../index.ndx . 2> /dev/null
 $GMX grompp -f mdp/em.mdp -c $PDB"_solv_ions.gro" -p topol.top -o em.tpr $INDEX
 $MDRUNmini -v -deffnm em 
 
-echo "Protein" | $GMX grompp tjconv -f em.gro -s em.tpr -o "${PDB}_minimized.pdb"
+echo "Protein" | $GMX trjconv -f em.gro -s em.tpr -o "${PDB}_minimized.pdb"

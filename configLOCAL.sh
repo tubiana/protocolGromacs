@@ -15,4 +15,8 @@ MDRUN_GPU="$GMX gmx mdrun $GPU0"
 MDRUN="$MDRUN_CPU"
 MDRUNmini=$MDRUN_CPU
 
-bash runGromacs.sh
+
+source ~/miniconda3/etc/profile.d/conda.sh
+conda activate gmx2023
+source run_mini_only.sh
+#source runGromacs.sh
