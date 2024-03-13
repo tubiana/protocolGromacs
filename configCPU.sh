@@ -38,4 +38,4 @@ MDRUN_GPU="$GMX gmx mdrun -ntomp 2 -ntmpi 4 -npme 1 -bonded gpu -nb gpu -pme gpu
 MDRUN="$MDRUN_CPU"
 MDRUNmini=$MDRUN_CPU
 
-bash runGromacs.sh
+source runGromacs.sh
