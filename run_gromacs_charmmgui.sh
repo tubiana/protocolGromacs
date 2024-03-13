@@ -77,6 +77,6 @@ EOF
 )
 
 pstep=$(printf ${equi_prefix} 6)
-$GMX grompp -f step7_production.mdp -o step7_production.tpr -c results/${pstep}.gro -p topol.top -n index.ndx    
+$GMX grompp -f step7_production.mdp -o step7_production.tpr -c results/${pstep}/${pstep}.gro -p topol.top -n index.ndx    
 $MDRUN -v -deffnm step7_production
 
