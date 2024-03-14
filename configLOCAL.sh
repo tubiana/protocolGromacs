@@ -11,7 +11,7 @@ export GMX_GPU_PME_PP_COMMS=true
 export GMX_FORCE_UPDATE_DEFAULT_GPU=1
 export GMX_GPU_DD_COMMS=true
 MDRUN_CPU="$GMX mdrun -nt ${NT}"
-MDRUN_GPU="$GMX gmx mdrun $GPU0"
+MDRUN_GPU="$GMX mdrun $GPU0"
 MDRUN="$MDRUN_CPU"
 MDRUNmini=$MDRUN_CPU
 
