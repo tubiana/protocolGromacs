@@ -261,7 +261,7 @@ for ((i=0; i<$NUMBEROFREPLICAS; i++))
 	#cleaning
 	mkdir -p results/npt
 	mv npt* results/npt/ 2> /dev/null
-	mv mdout.mdp results/npt_ab/
+	mv mdout.mdp results/npt/
 	#Pression and density graph
 	echo "17 0" | $GMX energy -f results/npt/npt_ab.edr -o graph/npt_${PDB}_pressure.xvg
 	echo "22 0" | $GMX energy -f results/npt/npt_ab.edr -o graph/npt_${PDB}_volume.xvg
@@ -301,7 +301,7 @@ for ((i=0; i<$NUMBEROFREPLICAS; i++))
 	echo "non-Water" | $GMX convert-tpr -s "md_${PDB}_prod.tpr" -o tpr_nowat.tpr
 	
 	# Create a smooth trajectory
-	echo "Protein" | $GMX -s tpr_nowat.tpr -f "md_${PDB}_clean_nowat.xtc" -ol "md_${PDB}_clean_nowat_filtered.xtc" -all -fit
+	echo "Protein" | $GMX filter -s tpr_nowat.tpr -f "md_${PDB}_clean_nowat.xtc" -ol "md_${PDB}_clean_nowat_filtered.xtc" -all -fit
 
 
 
