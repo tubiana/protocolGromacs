@@ -1,3 +1,5 @@
+[![DOI](https://zenodo.org/badge/287974004.svg)](https://zenodo.org/doi/10.5281/zenodo.11517764)
+
 # Automatic Gromacs Workflow Script
 *Author: Thibault Tubiana, PhD*  
 **Please read before using this script.**
