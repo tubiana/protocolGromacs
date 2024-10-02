@@ -39,8 +39,8 @@ if [ ! -z "$SIMULATIONTIME" ]
 then
 python_command=$(python <<EOF
 import re
-restep = re.compile("nsteps *= *(\d*)")
-redt = re.compile("dt *= *(\d*.\d*)")
+restep = re.compile(r"nsteps *= *(\d*)")
+redt = re.compile(r"dt *= *(\d*.\d*)")
 dt = 0
 simulationtime = float($SIMULATIONTIME) *1000 #Time in ps
 outputLines = []
