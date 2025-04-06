@@ -25,6 +25,7 @@ SIMULATIONTIME=500 #Simulation time in nanosec. Will be converted in fs and modi
 MPI="" #If you have to submit jobs with MPI softwares like "mpirun -np 10". Add the command here
 GMX=gmx #GMX command (can be "$GMX_mpi" sometimes. Just change it here
 #THOSE COMMANDS 
+GPU_local="-gpu_id 0 -ntmpi 1 -ntomp 8 -nb gpu -bonded gpu -pme gpu -pmefft gpu"
 GPU0="-gpu_id 0 -ntmpi 4 -ntomp 2 -nb gpu -bonded gpu -npme 1 -pme gpu -pmefft gpu -pin on -pinstride 0 -nstlist 100 -pinoffset 49" 
 GPU1="-gpu_id 1 -ntmpi 4 -ntomp 2 -nb gpu -bonded gpu -npme 1 -pme gpu -pmefft gpu -pin on -pinstride 0 -nstlist 100 -pinoffset 0"
 export GMX_GPU_PME_PP_COMMS=true
